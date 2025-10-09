@@ -6,12 +6,14 @@ except:
 	from shiboken2 import wrapInstance
 import maya.OpenMayaUI as omui 
 
+IMAGE_DIR = 'C:/Users/LOQ/OneDrive/Documents/maya/2024/scripts/FollowMeGame/image'
+
 class FollowMeToolDialog(QtWidgets.QDialog):
 	def __init__(self, parent=None):
-		super().__init(parent)
+		super().__init__(parent)
 
 		self.setWindowTitle('Follow Me')
-		self.resize(300, 500)
+		self.resize(500, 200)
 
 		self.mainLayout = QtWidgets.QVBoxLayout()
 		self.setLayout(self.mainLayout)
@@ -20,6 +22,18 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 				background-color: #FFCC66;
 			'''
 		)
+
+		self.imageLabel = QtWidgets.QLabel()
+		self.imagePixmap = QtGui.QPixmap(f'{IMAGE_DIR}/FollowMedarf1.jpg')
+		scaledPixmap = self.imagePixmap.scaled(
+			QtCore.QSize(600,200),
+			QtCore.Qt.KeepAspectRatio,
+			QtCore.Qt.SmoothTransformation		
+		)
+		self.imageLabel.setPixmap(scaledPixmap)
+		self.imageLabel.setAlignment(QtCore.Qt.AlignCenter)
+		self.mainLayout.addWidget(self.imageLabel)
+
 		self.buttonLayout = QtWidgets.QHBoxLayout()
 		self.mainLayout.addLayout(self.buttonLayout)
 		self.playButton = QtWidgets.QPushButton('PLAY')
@@ -27,11 +41,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 			'''
 				QPushButton{
 					background-color: #66CC66;
-					border-radius: 12px;
+					border-radius: 20px;
 					font-size 20px;
 					color: black;
 					font-weight: bold;
-					padding: 4 px;
+					padding: 6px;
 				}
 			'''
 		)
@@ -40,11 +54,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 			'''
 				QPushButton{
 					background-color: #CC0033;
-					border-radius: 12px;
+					border-radius: 20px;
 					font-size 20px;
 					color: black;
 					font-weight: bold;
-					padding: 4 px;
+					padding: 6px;
 				}
 			'''
 		)
