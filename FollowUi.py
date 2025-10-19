@@ -5,12 +5,21 @@ except:
 	from PySide2 import QtCore, QtGui, QtWidgets
 	from shiboken2 import wrapInstance
 
+<<<<<<< HEAD
 import maya.OpenMayaUI as omui
 import random
 import threading
 import Follow_Util as util
 
 IMAGE_DIR = 'C:/Users/ICT68/Documents/maya/2025/scripts/FollowMeGame/image'
+=======
+import random
+import threading
+import maya.OpenMayaUI as omui 
+from FollowMeGame import FollowUtil as util
+
+IMAGE_DIR = "C:/Users/LOQ/OneDrive/Documents/maya/2024/scripts/FollowMeGame/image"
+>>>>>>> 84d13bc (Follow Me)
 
 class FollowMeToolDialog(QtWidgets.QDialog):
 	def __init__(self, parent=None):
@@ -66,7 +75,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 					background-color: #66CC66;
 					border-radius: 10px;
 					font-family: Kristen ITC;
+<<<<<<< HEAD
 					font-size 20px;
+=======
+					font-size: 20px;
+>>>>>>> 84d13bc (Follow Me)
 					color: black;
 					font-weight: bold;
 					padding: 6px;
@@ -79,7 +92,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 				}
 			'''
 		)
+<<<<<<< HEAD
 		self.playButton.clicked.connect(self.onToggleChangeWidget)
+=======
+		self.playButton.clicked.connect(self.start_game)
+>>>>>>> 84d13bc (Follow Me)
 
 		self.quitButton = QtWidgets.QPushButton('Quit')
 		self.quitButton.setStyleSheet(
@@ -88,7 +105,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 					background-color: #f06292;
 					border-radius: 10px;
 					font-family: Kristen ITC;
+<<<<<<< HEAD
 					font-size 20px;
+=======
+					font-size: 20px;
+>>>>>>> 84d13bc (Follow Me)
 					color: black;
 					font-weight: bold;
 					padding: 6px;
@@ -137,7 +158,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 
 		self.roundLabel = QtWidgets.QLabel('Round: 0')
 		self.roundLabel.setAlignment(QtCore.Qt.AlignCenter)
+<<<<<<< HEAD
 		self.roundLabel.setStyleSheet('fount-size: 22px; font-weight: bold;')
+=======
+		self.roundLabel.setStyleSheet('font-size: 22px; font-weight: bold;')
+>>>>>>> 84d13bc (Follow Me)
 		self.gameLayout.addWidget(self.roundLabel)
 
 	def onToggleChangeWidget(self):
@@ -148,8 +173,13 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 			self.mainStackedWidget.setCurrentIndex(0)
 
 	def start_game(self):
+<<<<<<< HEAD
 		util.clear_scence()
 		self.objects = util.Create_objects()
+=======
+		util.clear_scene()
+		self.objects = util.Create_object()
+>>>>>>> 84d13bc (Follow Me)
 		self.round = 1
 		self.roundLabel.setText('Round: 1')
 
@@ -168,7 +198,11 @@ class FollowMeToolDialog(QtWidgets.QDialog):
 		blink_count = min(self.round, len(self.objects))
 		blink_targets = random.sample(self.objects, blink_count)
 		
+<<<<<<< HEAD
 		threading.Thread(traget=self.paly_sequence, args=(blink_targets,)).start()
+=======
+		threading.Thread(target=self.paly_sequence, args=(blink_targets,)).start()
+>>>>>>> 84d13bc (Follow Me)
 		self.round += 1
 
 	def paly_sequence(self, targets):
