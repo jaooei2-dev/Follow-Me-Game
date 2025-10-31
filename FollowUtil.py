@@ -1,84 +1,3 @@
-<<<<<<< HEAD
-import maya.cmds as cmds
-import time
-import random
-import os
-import maya.mel as mel
-
-NOTE_COLOS = {
-	"Do" : (1,0,0),
-	"Re" : (1,0.5,0),
-	"Mi" : (1,1,0),
-	"Fa" : (0,1,0),
-	"Sol" : (0,0,1),
-	"La" : (1,0,1),
-	"Ti" : (0.5,0,1),
-}
-
-SOUND_DIR = 
-
-GRAY = (0.5, 0.5, 0.5)
-
-def Create_object():
-	clear_scene()
-	spacing = 4
-	objetcts = []
-	note_name = list(NOTE_COLOS.keys())
-	
-	shape_functions = [
-		lambda: cmds.polySphere(name='Do_note')[0],
-		lambda: cmds.polyCube(name='Re_note')[0],
-		lambda: cmds.polyCone(name='Mi_note')[0],
-		lambda: cmds.polyCylinder(name='Fa_note')[0],
-		lambda: cmds.polyTorus(name='Sol_note')[0],
-		lambda: cmds.polyPyramid(name='La_note')[0],
-		lambda: cmds.polyPlane(name='Ti_note')[0],
-	]
-
-	for i, note in enumerate(note_names):
-		obj = shape_functions[i]()
-		cmds.move(i * spacing, 0, 0, obj)
-		set_color(obj, GRAY)
-		objetcts.append((obj, note))
-	return objetcts
-
-def set_color(obj, rgb):
-	shape = cmds.listRelatives(obj, shapes=True)
-	shader = cmds.shadingNode('lambert', asShader=True, name=f'{obj}_shader')
-	sg = cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=f'{obj}_SG')
-	cmds.connectAttr(f'{shader}.outColor', f'{sg}.noSurfaceShader', force=True)
-	cmds.setAttr(f'{shader}.color', *rgb, type='double3')
-	cmds.sets(obj, e=True, forceElement=sg)
-
-def blink_object(obj, note, duration=0.5):
-	color = NOTE_COLOS[note]
-	shape = cmds.listRelatives(obj, shapes=True)[0]
-	shader = cmds.listConnetctions(shape, type='lembert')[0]
-	cmds.setAttr(f'{shader}.color', *color, type='double3')
-	cmds.refresh()
-	play_note(note)
-	time.sleep(duration)
-	cmds.setAttr(f'{shader}.color', *GRAY, type='double3')
-	cmds.refresh()
-
-def play_note(note):
-	path = os.path.join(SOUND_DIR, f'{note}.wav').replace('\\','/')
-	if os.path.exsits(path):
-		mel.eval(f'sound -p 0 -file '{path}';')
-	else:
-		print (f'Sound file for {note} not found: {path}')
-
-def shuffle_object_positions(objetcts, spacing=4):
-	position = [cmds.xform(obj[0], q=True, ws=True, t=True) for obj in objetcts]
-	random.shuffle(position)
-	for i, (obj, _) in  enumerate(objetcts):
-		cmds.xform(obj, ws=True, t=position[i])
-
-def clear_scene():
-	objs = cmds.ls('*_note')
-	if objs:
-		cmds.delete(objs)
-=======
 import maya.cmds as cmds
 import random
 import time
@@ -86,20 +5,33 @@ import os
 import maya.mel as mel
 
 NOTE_COLORS = {
-    'Do': (238, 0, 0),
-    'Re': (255, 127, 0),
+    'Do': (255, 0, 0),
+    'Re': (255, 144, 0),
     'Mi': (255, 215, 0),
-    'Fa': (0, 238, 0),
-    'Sol': (60, 179, 113),
+    'Fa': (0, 255, 0),
+    'Sol': (32, 178, 170),
     'La': (0, 191, 255),
     'Ti': (132, 112, 255)
 }
 
 SOUND_DIR = "C:/Users/LOQ/OneDrive/Documents/maya/2024/scripts/FollowMeGame/sound"
-GRAY = (0.5, 0.5, 0.5)
+print("exists:", os.path.exists(SOUND_DIR))
+try:
+    import winsound
+    winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC)
+    print("winsound called")
+except Exception as e:
+    print("winsound failed:", e)
+try:
+    import os
+    os.startfile(path)
+    print("os.startfile called")
+except Exception as e:
+    print("os.startfile failed:", e)
 
-def Create_object():
-    clear_scene()
+GRAY = (139, 137, 137)
+
+def create_object():
     spacing = 4
     objects = []
     for i, note in enumerate(NOTE_COLORS.keys()):
@@ -121,45 +53,109 @@ def Create_object():
     	cmds.move(i* spacing, 0, 0, obj)
     	set_color(obj, GRAY)
     	objects.append((obj, note))
+    align_objects_to_grid(objects)
     return objects
 
-def set_color(obj, rgb):
+def set_color(obj, rgb, brightness=0.7):
     shape = cmds.listRelatives(obj, shapes=True)[0]
-    shader = cmds.shadingNode('lambert', asShader=True, name=f'{obj}_shader')
-    sg = cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=f'{obj}_SG')
+    shader_name = f"{obj}_shader"
+    sg_name = f"{obj}_SG"
+
+    if cmds.objExists(shader_name):
+        cmds.delete(shader_name)
+    if cmds.objExists(sg_name):
+        cmds.delete(sg_name)
+
+    shader = cmds.shadingNode('lambert', asShader=True, name=shader_name)
+    sg = cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=sg_name)
+
     cmds.connectAttr(f'{shader}.outColor', f'{sg}.surfaceShader', force=True)
-    cmds.setAttr(f'{shader}.color', *rgb, type='double3')
+    scaled_rgb = [brightness * (c / 255.0) for c in rgb]  # ปรับลดความสว่าง
+    cmds.setAttr(f'{shader}.color', *scaled_rgb, type='double3')
     cmds.sets(obj, e=True, forceElement=sg)
-
-def blink_object(obj, note, duration=0.5):
-    color = NOTE_COLORS[note]
-    shape = cmds.listRelatives(obj, shapes=True)[0]
-    shaders = cmds.listConnections(shape, type='lambert')
-    if not shaders:
-    	return
-    shader = shaders[0]
-    cmds.setAttr(f'{shader}.color', *color, type='double3')
-    cmds.refresh()
-    play_note(note)
-    time.sleep(duration)
-    cmds.setAttr(f'{shader}.color', *GRAY, type='double3')
-    cmds.refresh()
-
-def play_note(note):
-    path = os.path.join(SOUND_DIR, f'{note}.wav').replace('\\','/')
-    if os.path.exists(path):
-        mel.eval(f"sound -p 0 -file '{path}';")
-    else:
-        print(f'Sound file for {note} not found: {path}')
+    cmds.refresh(f=True)
 
 def shuffle_object_positions(objects):
-    positions = [cmds.xform(obj[0], q=True, ws=True, t=True) for obj in objects]
-    random.shuffle(positions)
+    random.shuffle(objects)
     for i, (obj, _) in enumerate(objects):
-        cmds.xform(obj, ws=True, t=positions[i])
+        cmds.move(i * 3, 0, 0, obj)
+    cmds.refresh(f=True)
+
+def play_note(note):
+    path = os.path.join(SOUND_DIR, f'{note}.wav').replace('\\', '/')
+    if not os.path.exists(path):
+        print(f'[FollowMe util] Sound file for {note} not found: {path}')
+        return
+    try:
+        import winsound
+        winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC)
+        print(f'[FollowMe util] Playing (winsound) {path}')
+        return
+    except Exception as e:
+        print(f'[FollowMe util] winsound failed: {e}')
+
+    try:
+        if os.name == 'nt':
+            os.startfile(path)
+            print(f'[FollowMe util] Playing (os.startfile) {path}')
+            return
+    except Exception as e:
+        print(f'[FollowMe util] os.startfile failed: {e}')
+
+    try:
+        import subprocess
+        subprocess.Popen(['start', path], shell=True)
+        print(f'[FollowMe util] Playing (subprocess start) {path}')
+        return
+    except Exception as e:
+        print(f'[FollowMe util] subprocess start failed: {e}')
+
+    try:
+        node = cmds.sound(file=path)
+        print(f'[FollowMe util] Created Maya sound node: {node} (may require manual play)')
+        return
+    except Exception as e:
+        print(f'[FollowMe util] cmds.sound failed: {e}')
+
+    print('[FollowMe util] All playback methods failed.')
+
 
 def clear_scene():
-    objs = cmds.ls('*_note')
-    if objs:
-        cmds.delete(objs)
->>>>>>> 84d13bc (Follow Me)
+    notes = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Ti']
+
+    for note in notes:
+        objs = cmds.ls(f'{note}_note*', dag=True, long=True) or []
+        objs += cmds.ls(f'{note}_Note*', dag=True, long=True) or []
+
+        for obj in objs:
+            shader = f"{obj}_shader"
+            sg = f"{obj}_SG"
+            if cmds.objExists(shader):
+                cmds.delete(shader)
+            if cmds.objExists(sg):
+                cmds.delete(sg)
+            if cmds.objExists(obj):
+                try:
+                    cmds.delete(obj)
+                except:
+                    pass
+
+    for node_type in ['shadingEngine', 'lambert', 'surfaceShader']:
+        all_nodes = cmds.ls(type=node_type)
+        for node in all_nodes:
+            if node.endswith('_SG') or node.endswith('_shader'):
+                try:
+                    cmds.delete(node)
+                except:
+                    pass
+
+    cmds.refresh(f=True)
+
+def align_objects_to_grid(objects):
+    for obj, _ in objects:
+        if not cmds.objExists(obj):
+            continue
+        bbox = cmds.exactWorldBoundingBox(obj)
+        minY = bbox[1]
+        cmds.move(0, -minY, 0, obj, relative=True)
+
